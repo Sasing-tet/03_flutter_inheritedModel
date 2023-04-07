@@ -23,11 +23,48 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  var color1 = Colors.yellow;
+  var color2 = Colors.blue;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Home Page'),
+      ),
+      body: AvailableColorsWidget(
+        color1: color1,
+        color2: color2,
+        child: Column(
+          children: [
+            Row(
+              children: [
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      color1 = colors.getRandomElement();
+                    });
+                  },
+                  child: const Text('Change Color1'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      color2 = colors.getRandomElement();
+                    });
+                  },
+                  child: const Text('Change Color2'),
+                ),
+              ],
+            ),
+            const ColorWidget(
+              color: AvailableColors.one,
+            ),
+            const ColorWidget(
+              color: AvailableColors.two,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -36,8 +73,8 @@ class _HomePageState extends State<HomePage> {
 enum AvailableColors { one, two }
 
 class AvailableColorsWidget extends InheritedModel<AvailableColors> {
-  final AvailableColors color1;
-  final AvailableColors color2;
+  final MaterialColor color1;
+  final MaterialColor color2;
 
   const AvailableColorsWidget({
     Key? key,
@@ -49,7 +86,7 @@ class AvailableColorsWidget extends InheritedModel<AvailableColors> {
           child: child,
         );
 
-  static AvailableColorsWidget? of(
+  static AvailableColorsWidget of(
     BuildContext context,
     AvailableColors aspect,
   ) {
@@ -77,12 +114,43 @@ class AvailableColorsWidget extends InheritedModel<AvailableColors> {
       return true;
     }
 
-    if (dependencies.contains(AvailableColors.one) &&
+    if (dependencies.contains(AvailableColors.two) &&
         color2 != oldWidget.color2) {
       return true;
     }
 
     return false;
+  }
+}
+
+class ColorWidget extends StatelessWidget {
+  final AvailableColors color;
+
+  const ColorWidget({
+    Key? key,
+    required this.color,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    switch (color) {
+      case AvailableColors.one:
+        devtools.log('Color1 Widget got rebuilt!');
+        break;
+      case AvailableColors.two:
+        devtools.log('Color2 Widget got rebuilt!');
+        break;
+    }
+
+    final provider = AvailableColorsWidget.of(
+      context,
+      color,
+    );
+
+    return Container(
+      height: 100,
+      color: color == AvailableColors.one ? provider.color1 : provider.color2,
+    );
   }
 }
 
